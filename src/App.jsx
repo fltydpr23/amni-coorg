@@ -98,16 +98,33 @@ export default function App() {
   const [current, setCurrent] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const containerRef = useRef(null);
+  const sectionRefs = useRef([]);
 
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      const idx = Math.round(el.scrollTop / window.innerHeight);
-      setCurrent(idx);
+    const observerOptions = {
+      root: containerRef.current,
+      threshold: 0.5,
     };
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
+
+    const observerCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const index = parseInt(entry.target.getAttribute('data-index'));
+          setCurrent(index);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    sectionRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => {
+      sectionRefs.current.forEach((ref) => {
+        if (ref) observer.unobserve(ref);
+      });
+    };
   }, []);
 
   const scrollTo = (i) => {
@@ -241,24 +258,35 @@ export default function App() {
         className="hide-scrollbar"
       >
         {sections.map((sec, i) => (
-          <SlideSection key={sec.id} sec={sec} isActive={current === i} onScrollNext={() => scrollTo(i + 1)} />
+          <SlideSection 
+            key={sec.id} 
+            sec={sec} 
+            index={i}
+            isActive={current === i} 
+            onScrollNext={() => scrollTo(i + 1)} 
+            setRef={(el) => (sectionRefs.current[i] = el)}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-function SlideSection({ sec, isActive, onScrollNext }) {
+function SlideSection({ sec, index, isActive, onScrollNext, setRef }) {
   // If it's the hero parts, we handle the image separately via the fixed container
   const isHeroPart = sec.type === 'hero-empty' || sec.type === 'hero-text';
 
   return (
-    <section style={{
-      height: '100vh', width: '100%',
-      scrollSnapAlign: 'start', scrollSnapStop: 'always',
-      position: 'relative', overflow: 'hidden',
-      display: 'flex', alignItems: 'center',
-    }}>
+    <section 
+      ref={setRef}
+      data-index={index}
+      style={{
+        height: '100vh', width: '100%',
+        scrollSnapAlign: 'start', scrollSnapStop: 'always',
+        position: 'relative', overflow: 'hidden',
+        display: 'flex', alignItems: 'center',
+      }}
+    >
       {/* Background Image (only for non-hero parts) */}
       {!isHeroPart && (
         <div style={{
@@ -361,7 +389,7 @@ function SlideSection({ sec, isActive, onScrollNext }) {
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px', marginBottom: 60 }}>
               <ContactLink label="Email" value="amni.coorg@gmail.com" />
-              <ContactLink label="Phone" value="+91 854 758 6562" />
+              <ContactLink label="Phone" value="+91 99529 36206" />
               <ContactLink label="Instagram" value="@amni.coorg" />
             </div>
             
