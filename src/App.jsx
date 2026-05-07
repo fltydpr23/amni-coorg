@@ -389,7 +389,7 @@ function SlideSection({ sec, index, isActive, onScrollNext, setRef }) {
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px', marginBottom: 60 }}>
               <ContactLink label="Email" value="amni.coorg@gmail.com" />
-              <ContactLink label="Phone" value="+91 99529 36206" />
+              <ContactLink label="Phone" value="+91 85475 86562" />
               <ContactLink label="Instagram" value="@amni.coorg" />
             </div>
             
