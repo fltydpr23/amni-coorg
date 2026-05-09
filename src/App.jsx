@@ -97,8 +97,10 @@ const sections = [
 export default function App() {
   const [current, setCurrent] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [entered, setEntered] = useState(false);
   const containerRef = useRef(null);
   const sectionRefs = useRef([]);
+  const audioRef = useRef(null);
 
   useEffect(() => {
     const observerOptions = {
@@ -127,6 +129,37 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    audioRef.current = new Audio('/sfx/amni-ambience-loop.mp3');
+    audioRef.current.loop = true;
+    audioRef.current.volume = 0;
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  const handleEnter = () => {
+    setEntered(true);
+    if (audioRef.current) {
+      audioRef.current.play().catch(err => console.log("Audio play blocked or failed:", err));
+      
+      // Smooth fade in
+      let vol = 0;
+      const interval = setInterval(() => {
+        if (vol < 0.4) { // Max volume 0.4 for subtlety
+          vol += 0.02;
+          audioRef.current.volume = Math.min(vol, 0.4);
+        } else {
+          clearInterval(interval);
+        }
+      }, 100);
+    }
+  };
+
   const scrollTo = (i) => {
     containerRef.current?.scrollTo({ top: i * window.innerHeight, behavior: 'smooth' });
     setMenuOpen(false);
@@ -136,6 +169,51 @@ export default function App() {
     <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', background: '#0c0b09', fontFamily: "'Outfit', sans-serif" }}>
       <GrainOverlay />
       
+      {/* ── Gated "Ritual" Intro ─────────────────────── */}
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 1000,
+        background: '#0c0b09',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        opacity: entered ? 0 : 1,
+        pointerEvents: entered ? 'none' : 'all',
+        transition: 'opacity 2s cubic-bezier(0.16, 1, 0.3, 1)',
+      }}>
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.25 }}>
+          <img src="/pictures/bridge-to-home.jpg" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <img src="/logo-hills.svg" alt="Amni" style={{ height: 48, filter: 'invert(1)', opacity: 0.9, marginBottom: 32 }} />
+          <p style={{ fontSize: 10, letterSpacing: '0.4em', color: '#9e8e7a', marginBottom: 40, textTransform: 'uppercase' }}>
+            Tune out the real world
+          </p>
+          <button
+            onClick={handleEnter}
+            style={{
+              background: 'none',
+              border: '1px solid rgba(245, 240, 232, 0.2)',
+              color: '#f5f0e8',
+              padding: '14px 32px',
+              borderRadius: '100px',
+              fontSize: 11,
+              letterSpacing: '0.25em',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              transition: 'all 0.4s ease',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(245, 240, 232, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(245, 240, 232, 0.4)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'none';
+              e.currentTarget.style.borderColor = 'rgba(245, 240, 232, 0.2)';
+            }}
+          >
+            Enter Sanctuary
+          </button>
+        </div>
+      </div>
+
       {/* ── Fixed Nav ───────────────────────────────────── */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
