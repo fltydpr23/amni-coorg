@@ -427,7 +427,13 @@ function SlideSection({ sec, index, isActive, onScrollNext, setRef }) {
               fontWeight: 400, lineHeight: 1, color: '#f5f0e8', margin: '0 0 28px 0',
               whiteSpace: 'pre-line'
             }}>{sec.title}</h2>
-            <p style={{ fontSize: 'clamp(14px, 1.5vw, 17px)', lineHeight: 1.8, color: '#b8a898', fontWeight: 300 }}>{sec.body}</p>
+            <p style={{ 
+              fontSize: 'clamp(15px, 1.6vw, 18px)', 
+              lineHeight: 1.85, 
+              color: '#e8dece', 
+              fontWeight: 300,
+              textShadow: '0 2px 12px rgba(0,0,0,0.6)'
+            }}>{sec.body}</p>
           </div>
         )}
 
