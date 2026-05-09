@@ -479,7 +479,7 @@ function SlideSection({ sec, index, isActive, onScrollNext, setRef }) {
             }}>Return to<br /><em style={{ fontStyle: 'italic', color: '#c8b89a' }}>the Rhythm</em></h2>
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px', marginBottom: 60 }}>
-              <ContactLink label="Email" value="amni.coorg@gmail.com" href="mailto:amni.coorg@gmail.com" />
+              <ContactLink label="Email" value="amni.coorg@gmail.com" href="mailto:amni.coorg@gmail.com?subject=Requesting%20an%20Invitation%20to%20Amni" />
               <ContactLink label="Phone" value="+91 85475 86562" href="tel:+918547586562" />
               <ContactLink label="Instagram" value="@amni.coorg" href="https://www.instagram.com/amni.coorg/" />
             </div>
