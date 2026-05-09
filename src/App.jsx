@@ -189,18 +189,32 @@ export default function App() {
               background: 'none',
               border: 'none',
               color: '#e8dece',
-              padding: '10px 20px',
-              fontSize: 'clamp(20px, 3vw, 28px)',
-              fontFamily: "'Playfair Display', serif",
-              fontStyle: 'italic',
+              padding: '20px',
               cursor: 'pointer',
               transition: 'opacity 0.8s ease',
-              opacity: 0.7
+              opacity: 0.6,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '4px',
+              margin: '0 auto'
             }}
             onMouseEnter={e => e.currentTarget.style.opacity = 1}
-            onMouseLeave={e => e.currentTarget.style.opacity = 0.7}
+            onMouseLeave={e => e.currentTarget.style.opacity = 0.6}
+            aria-label="Enter Sanctuary"
           >
-            Listen to the silence
+            {[0, 0.2, 0.4, 0.1].map((delay, i) => (
+              <div
+                key={i}
+                style={{
+                  width: '1.5px',
+                  height: '18px',
+                  backgroundColor: 'currentColor',
+                  animation: `pulse-height 1.5s ease-in-out ${delay}s infinite`,
+                  transformOrigin: 'center'
+                }}
+              />
+            ))}
           </button>
         </div>
       </div>
