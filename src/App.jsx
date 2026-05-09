@@ -130,10 +130,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    audioRef.current = new Audio('/sfx/amni-ambience-loop.mp3');
-    audioRef.current.loop = true;
-    audioRef.current.volume = 0;
-    
+    // Only cleanup on unmount
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -144,19 +141,29 @@ export default function App() {
 
   const handleEnter = () => {
     setEntered(true);
-    if (audioRef.current) {
-      audioRef.current.play().catch(err => console.log("Audio play blocked or failed:", err));
-      
-      // Smooth fade in
-      let vol = 0;
-      const interval = setInterval(() => {
-        if (vol < 0.4) { // Max volume 0.4 for subtlety
-          vol += 0.02;
-          audioRef.current.volume = Math.min(vol, 0.4);
-        } else {
-          clearInterval(interval);
-        }
-      }, 100);
+    
+    if (!audioRef.current) {
+      audioRef.current = new Audio('/sfx/amni-ambience-loop.mp3');
+      audioRef.current.loop = true;
+      audioRef.current.volume = 0;
+    }
+    
+    const playPromise = audioRef.current.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        // Smooth fade in
+        let vol = 0;
+        const interval = setInterval(() => {
+          if (audioRef.current && vol < 0.4) { // Max volume 0.4 for subtlety
+            vol += 0.02;
+            audioRef.current.volume = Math.min(vol, 0.4);
+          } else {
+            clearInterval(interval);
+          }
+        }, 100);
+      }).catch(err => {
+        console.log("Audio play blocked or failed:", err);
+      });
     }
   };
 
@@ -190,26 +197,20 @@ export default function App() {
             onClick={handleEnter}
             style={{
               background: 'none',
-              border: '1px solid rgba(245, 240, 232, 0.2)',
-              color: '#f5f0e8',
-              padding: '14px 32px',
-              borderRadius: '100px',
-              fontSize: 11,
-              letterSpacing: '0.25em',
-              textTransform: 'uppercase',
+              border: 'none',
+              color: '#e8dece',
+              padding: '10px 20px',
+              fontSize: 'clamp(20px, 3vw, 28px)',
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: 'italic',
               cursor: 'pointer',
-              transition: 'all 0.4s ease',
+              transition: 'opacity 0.8s ease',
+              opacity: 0.7
             }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(245, 240, 232, 0.05)';
-              e.currentTarget.style.borderColor = 'rgba(245, 240, 232, 0.4)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'none';
-              e.currentTarget.style.borderColor = 'rgba(245, 240, 232, 0.2)';
-            }}
+            onMouseEnter={e => e.currentTarget.style.opacity = 1}
+            onMouseLeave={e => e.currentTarget.style.opacity = 0.7}
           >
-            Enter Sanctuary
+            Listen to the silence
           </button>
         </div>
       </div>
