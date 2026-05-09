@@ -388,9 +388,9 @@ function SlideSection({ sec, index, isActive, onScrollNext, setRef }) {
             }}>Return to<br /><em style={{ fontStyle: 'italic', color: '#c8b89a' }}>the Rhythm</em></h2>
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px', marginBottom: 60 }}>
-              <ContactLink label="Email" value="amni.coorg@gmail.com" />
-              <ContactLink label="Phone" value="+91 85475 86562" />
-              <ContactLink label="Instagram" value="@amni.coorg" />
+              <ContactLink label="Email" value="amni.coorg@gmail.com" href="mailto:amni.coorg@gmail.com" />
+              <ContactLink label="Phone" value="+91 85475 86562" href="tel:+918547586562" />
+              <ContactLink label="Instagram" value="@amni.coorg" href="https://www.instagram.com/amni.coorg/" />
             </div>
             
             <div style={{ 
@@ -428,11 +428,21 @@ function SlideSection({ sec, index, isActive, onScrollNext, setRef }) {
   );
 }
 
-function ContactLink({ label, value }) {
-  return (
+function ContactLink({ label, value, href }) {
+  const content = (
     <div>
       <p style={{ fontSize: 9, letterSpacing: '0.3em', color: '#c8b89a', marginBottom: 8, textTransform: 'uppercase' }}>{label}</p>
       <p style={{ fontSize: 'clamp(14px, 1.5vw, 17px)', color: '#f5f0e8', fontWeight: 300 }}>{value}</p>
     </div>
   );
+
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
+        {content}
+      </a>
+    );
+  }
+
+  return content;
 }
