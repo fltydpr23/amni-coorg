@@ -166,56 +166,58 @@ export default function App() {
       <audio ref={audioRef} src="/sfx/amni-ambience-loop.mp3" loop preload="auto" style={{ display: 'none' }} />
 
       
-      {/* ── Gated "Ritual" Intro ─────────────────────── */}
+      {/* ── Persistent Waveform Button ─────────────────────── */}
+      <button
+        onClick={!entered ? handleEnter : undefined}
+        style={{
+          position: 'fixed',
+          zIndex: 1001,
+          bottom: '40px',
+          left: '40px',
+          background: 'none',
+          border: 'none',
+          color: '#e8dece',
+          padding: '20px',
+          cursor: entered ? 'default' : 'pointer',
+          opacity: 0.6,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '4px',
+          transform: entered 
+            ? 'translate(0, 0) scale(0.8)' 
+            : 'translate(calc(50vw - 40px - 50%), calc(-50vh + 40px + 50%)) scale(1.5)',
+          transition: 'transform 3s cubic-bezier(0.25, 1, 0.2, 1), opacity 0.8s ease',
+        }}
+        onMouseEnter={e => { if(!entered) e.currentTarget.style.opacity = 1 }}
+        onMouseLeave={e => { if(!entered) e.currentTarget.style.opacity = 0.6 }}
+        aria-label="Enter Sanctuary"
+      >
+        {[0, 0.2, 0.4, 0.1].map((delay, i) => (
+          <div
+            key={i}
+            style={{
+              width: '1.5px',
+              height: '18px',
+              backgroundColor: 'currentColor',
+              animation: `pulse-height 1.5s ease-in-out ${delay}s infinite`,
+              transformOrigin: 'center'
+            }}
+          />
+        ))}
+      </button>
+
+      {/* ── Gated "Ritual" Intro Overlay ─────────────────────── */}
       <div style={{
         position: 'fixed', inset: 0, zIndex: 1000,
         background: '#0c0b09',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         opacity: entered ? 0 : 1,
         pointerEvents: entered ? 'none' : 'all',
-        transition: 'opacity 2s cubic-bezier(0.16, 1, 0.3, 1)',
+        transition: 'opacity 3s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
         <div style={{ position: 'absolute', inset: 0, opacity: 0.25 }}>
           <img src="/pictures/bridge-to-home.jpg" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        </div>
-        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-          <img src="/logo-hills.svg" alt="Amni" style={{ height: 48, filter: 'invert(1)', opacity: 0.9, marginBottom: 32 }} />
-          <p style={{ fontSize: 10, letterSpacing: '0.4em', color: '#9e8e7a', marginBottom: 40, textTransform: 'uppercase' }}>
-            Tune out the real world
-          </p>
-          <button
-            onClick={handleEnter}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#e8dece',
-              padding: '20px',
-              cursor: 'pointer',
-              transition: 'opacity 0.8s ease',
-              opacity: 0.6,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px',
-              margin: '0 auto'
-            }}
-            onMouseEnter={e => e.currentTarget.style.opacity = 1}
-            onMouseLeave={e => e.currentTarget.style.opacity = 0.6}
-            aria-label="Enter Sanctuary"
-          >
-            {[0, 0.2, 0.4, 0.1].map((delay, i) => (
-              <div
-                key={i}
-                style={{
-                  width: '1.5px',
-                  height: '18px',
-                  backgroundColor: 'currentColor',
-                  animation: `pulse-height 1.5s ease-in-out ${delay}s infinite`,
-                  transformOrigin: 'center'
-                }}
-              />
-            ))}
-          </button>
         </div>
       </div>
 
