@@ -129,41 +129,27 @@ export default function App() {
     };
   }, []);
 
-  useEffect(() => {
-    // Only cleanup on unmount
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []);
-
   const handleEnter = () => {
     setEntered(true);
     
-    if (!audioRef.current) {
-      audioRef.current = new Audio('/sfx/amni-ambience-loop.mp3');
-      audioRef.current.loop = true;
-      audioRef.current.volume = 0;
-    }
-    
-    const playPromise = audioRef.current.play();
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        // Smooth fade in
-        let vol = 0;
-        const interval = setInterval(() => {
-          if (audioRef.current && vol < 0.4) { // Max volume 0.4 for subtlety
-            vol += 0.02;
-            audioRef.current.volume = Math.min(vol, 0.4);
-          } else {
-            clearInterval(interval);
-          }
-        }, 100);
-      }).catch(err => {
-        console.log("Audio play blocked or failed:", err);
-      });
+    if (audioRef.current) {
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          // Smooth fade in
+          let vol = 0;
+          const interval = setInterval(() => {
+            if (audioRef.current && vol < 0.4) { // Max volume 0.4 for subtlety
+              vol += 0.02;
+              audioRef.current.volume = Math.min(vol, 0.4);
+            } else {
+              clearInterval(interval);
+            }
+          }, 100);
+        }).catch(err => {
+          console.log("Audio play blocked or failed:", err);
+        });
+      }
     }
   };
 
@@ -175,6 +161,10 @@ export default function App() {
   return (
     <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', background: '#0c0b09', fontFamily: "'Outfit', sans-serif" }}>
       <GrainOverlay />
+      
+      {/* Hidden Audio Tag for better browser compatibility */}
+      <audio ref={audioRef} src="/sfx/amni-ambience-loop.mp3" loop preload="auto" style={{ display: 'none' }} />
+
       
       {/* ── Gated "Ritual" Intro ─────────────────────── */}
       <div style={{
