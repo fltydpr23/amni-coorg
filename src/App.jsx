@@ -33,8 +33,7 @@ const sections = [
   {
     id: 'vibe',
     image: '/pictures/chairs-table-sunlit-in-nature.jpg',
-    type: 'pullquote',
-    quote: 'Not curated luxury, but nature, unfiltered and generous.',
+    type: 'image-only',
   },
   {
     id: 'accommodation',
@@ -44,6 +43,11 @@ const sections = [
     title: 'A Private\nDwelling',
     body: 'Two well-appointed rooms sleeping up to five. Your private verandahs offer uninterrupted views of the rolling estate. A stone fireplace at the centre of the living room. No televisions — ensuring you truly disconnect from the world.',
     align: 'right',
+  },
+  {
+    id: 'cottage-exterior',
+    image: '/pictures/amni-cottage.jpg',
+    type: 'image-only',
   },
   {
     id: 'dining',
@@ -66,11 +70,7 @@ const sections = [
   {
     id: 'bonfire',
     image: '/pictures/bonfire-lawn-chairs-couch.jpg',
-    type: 'feature',
-    label: 'Nights',
-    title: 'Fire &\nSilence',
-    body: 'Under a sky uninterrupted by city light, a bonfire circles warmth through the cool Coorg air. There is no agenda. Just the fire, the night, and the absolute privacy of your surroundings.',
-    align: 'left',
+    type: 'image-only',
   },
   {
     id: 'details',
@@ -229,6 +229,41 @@ export default function App() {
       </button>
       )}
 
+      {/* ── Persistent "As seen on" Logos ─────────────────────── */}
+      {!isMobile && (
+        <div style={{
+          position: 'fixed',
+          zIndex: 50,
+          bottom: 'clamp(24px, 4vw, 40px)',
+          right: 'clamp(24px, 4vw, 40px)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          gap: '10px',
+          opacity: current === sections.length - 1 ? 0.6 : 0,
+          pointerEvents: current === sections.length - 1 ? 'all' : 'none',
+          transition: 'opacity 0.8s ease',
+        }}
+        onMouseEnter={e => { if (current === sections.length - 1) e.currentTarget.style.opacity = 1 }}
+        onMouseLeave={e => { if (current === sections.length - 1) e.currentTarget.style.opacity = 0.6 }}
+        >
+          <p style={{ 
+            fontSize: 8, 
+            letterSpacing: '0.3em', 
+            color: '#e8dece', 
+            margin: 0, 
+            textTransform: 'uppercase',
+            opacity: 0.7
+          }}>
+            As seen on
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            <img src="/logos/conde-nast.png" alt="Conde Nast" style={{ height: 'clamp(32px, 5vw, 44px)', filter: 'brightness(0) invert(1)' }} />
+            <img src="/logos/Traveller-logo-1.png" alt="Outlook Traveller" style={{ height: 'clamp(14px, 2.5vw, 20px)', filter: 'brightness(0) invert(1)' }} />
+          </div>
+        </div>
+      )}
+
       {/* ── Gated "Ritual" Intro Overlay ─────────────────────── */}
       <div style={{
         position: 'fixed', inset: 0, zIndex: 1000,
@@ -240,29 +275,41 @@ export default function App() {
         transition: 'opacity 3s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '40px' }}>
-          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(20px, 4vw, 32px)', color: '#f5f0e8', textAlign: 'center', maxWidth: '80%', fontStyle: 'italic', margin: 0 }}>
-            Amni is best experienced with sound.<br />Would you like to enable the ambience?
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(16px, 4vw, 28px)', color: '#f5f0e8', textAlign: 'center', whiteSpace: 'nowrap', fontStyle: 'italic', margin: 0 }}>
+            Amni is best experienced with sound.
           </p>
-          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '10px' }}>
             <button
               onClick={() => handleEnter(true)}
               style={{
-                background: 'rgba(245, 240, 232, 0.1)', backdropFilter: 'blur(12px)', border: '1px solid rgba(245, 240, 232, 0.2)',
-                color: '#f5f0e8', padding: '16px 36px', borderRadius: '100px', fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.4s ease',
+                background: 'transparent', border: 'none',
+                color: 'rgba(245, 240, 232, 0.75)', padding: '16px 12px', fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.8s ease',
               }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(245, 240, 232, 0.15)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(245, 240, 232, 0.1)'}
+              onMouseEnter={e => {
+                e.currentTarget.style.color = 'rgba(245, 240, 232, 1)';
+                e.currentTarget.style.textShadow = '0 0 16px rgba(245, 240, 232, 0.6), 0 0 32px rgba(245, 240, 232, 0.3)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.color = 'rgba(245, 240, 232, 0.75)';
+                e.currentTarget.style.textShadow = 'none';
+              }}
             >
-              Yes, with audio
+              Proceed with audio
             </button>
             <button
               onClick={() => handleEnter(false)}
               style={{
-                background: 'transparent', border: '1px solid rgba(245, 240, 232, 0.15)',
-                color: '#a09080', padding: '16px 36px', borderRadius: '100px', fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.4s ease',
+                background: 'transparent', border: 'none',
+                color: 'rgba(160, 144, 128, 0.6)', padding: '16px 12px', fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.8s ease',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(245, 240, 232, 0.05)'; e.currentTarget.style.color = '#f5f0e8'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#a09080'; }}
+              onMouseEnter={e => { 
+                e.currentTarget.style.color = 'rgba(245, 240, 232, 1)';
+                e.currentTarget.style.textShadow = '0 0 16px rgba(245, 240, 232, 0.4), 0 0 32px rgba(245, 240, 232, 0.2)';
+              }}
+              onMouseLeave={e => { 
+                e.currentTarget.style.color = 'rgba(160, 144, 128, 0.6)';
+                e.currentTarget.style.textShadow = 'none';
+              }}
             >
               Enter silently
             </button>
@@ -297,14 +344,19 @@ export default function App() {
 
       {/* ── Invitation Pill (Floating CTA) ──────────────── */}
       <div style={{
-        position: 'fixed', bottom: 'clamp(24px, 5vw, 40px)', left: '50%', transform: 'translateX(-50%)',
+        position: 'fixed', bottom: 'clamp(64px, 8vw, 80px)', left: '50%', 
+        transform: current === sections.length - 1 
+          ? 'translateX(-50%) translateY(0)' 
+          : 'translateX(-50%) translateY(20px)',
         zIndex: 50, transition: 'opacity 0.8s ease, transform 0.8s ease',
-        opacity: current === sections.length - 1 || current === 0 || current === 1 ? 0 : 1,
-        pointerEvents: current === sections.length - 1 || current === 0 || current === 1 ? 'none' : 'all',
+        opacity: current === sections.length - 1 ? 1 : 0,
+        pointerEvents: current === sections.length - 1 ? 'all' : 'none',
       }}>
-        <button 
-          onClick={() => scrollTo(sections.length - 1)}
+        <a 
+          href="mailto:amni.coorg@gmail.com?subject=Requesting%20an%20Invitation%20to%20Amni"
           style={{
+            display: 'inline-block',
+            textDecoration: 'none',
             background: 'rgba(245, 240, 232, 0.08)',
             backdropFilter: 'blur(12px)',
             border: '1px solid rgba(245, 240, 232, 0.15)',
@@ -320,7 +372,7 @@ export default function App() {
           }}
         >
           Request an Invitation
-        </button>
+        </a>
       </div>
 
       {/* ── Fullscreen Menu Overlay ───────────────────── */}
@@ -390,6 +442,32 @@ export default function App() {
           >
             Sound {isPlaying ? 'On' : 'Off'}
           </button>
+        )}
+
+        {isMobile && (
+          <div style={{
+            position: 'absolute',
+            bottom: '40px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px',
+            opacity: 0.7
+          }}>
+            <p style={{ 
+              fontSize: 8, 
+              letterSpacing: '0.3em', 
+              color: '#e8dece', 
+              margin: 0, 
+              textTransform: 'uppercase',
+            }}>
+              As seen on
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+              <img src="/logos/conde-nast.png" alt="Conde Nast" style={{ height: '34px', filter: 'brightness(0) invert(1)' }} />
+              <img src="/logos/Traveller-logo-1.png" alt="Outlook Traveller" style={{ height: '16px', filter: 'brightness(0) invert(1)' }} />
+            </div>
+          </div>
         )}
       </div>
 
@@ -576,7 +654,6 @@ function SlideSection({ sec, index, isActive, isMobile, onScrollNext, setRef }) 
               fontSize: 'clamp(40px, 8vw, 100px)',
               fontWeight: 400, lineHeight: 0.9, color: '#f5f0e8', margin: '0 0 40px 0'
             }}>Return to<br /><em style={{ fontStyle: 'italic', color: '#c8b89a' }}>the Rhythm</em></h2>
-            
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px', marginBottom: 60 }}>
               <ContactLink label="Email" value="amni.coorg@gmail.com" href="mailto:amni.coorg@gmail.com?subject=Requesting%20an%20Invitation%20to%20Amni" />
               <ContactLink label="Phone" value="+91 85475 86562" href="tel:+918547586562" />
@@ -606,7 +683,7 @@ function SlideSection({ sec, index, isActive, isMobile, onScrollNext, setRef }) 
       {sec.type === 'contact' && (
         <div style={{
           position: 'absolute',
-          bottom: 'clamp(20px, 4vw, 40px)',
+          bottom: 'clamp(16px, 2vw, 24px)',
           left: 0,
           width: '100%',
           display: 'flex',
