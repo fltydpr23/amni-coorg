@@ -42,7 +42,16 @@ const sections = [
     type: 'feature',
     label: 'The Cottage',
     title: 'A Private\nDwelling',
-    body: 'Two well-appointed rooms sleeping up to five. Your private verandahs offer uninterrupted views of the 100-acre estate. A stone fireplace at the centre of the living room. No televisions — ensuring you truly disconnect from the world.',
+    body: 'Two well-appointed rooms sleeping up to five. Your private verandahs offer uninterrupted views of the rolling estate. A stone fireplace at the centre of the living room. No televisions — ensuring you truly disconnect from the world.',
+    align: 'right',
+  },
+  {
+    id: 'dining',
+    image: '/pictures/dining-open-window-sunlit.jpg',
+    type: 'feature',
+    label: 'Dining',
+    title: 'Homestyle,\nCoorg Flavour',
+    body: 'All meals are served at our home, just a two-minute walk from the cottage. Simple, wholesome cuisine using locally sourced ingredients. Traditional Coorg flavours meet the warmth of a shared table.',
     align: 'right',
   },
   {
@@ -55,30 +64,6 @@ const sections = [
     align: 'left',
   },
   {
-    id: 'dining',
-    image: '/pictures/dining-open-window-sunlit.jpg',
-    type: 'feature',
-    label: 'Dining',
-    title: 'Homestyle,\nCoorg Flavour',
-    body: 'All meals are served at our home, just a two-minute walk from the cottage. Simple, wholesome cuisine using locally sourced ingredients. Traditional Coorg flavours meet the warmth of a shared table.',
-    align: 'right',
-  },
-  {
-    id: 'details',
-    image: '/pictures/fountain-creek-water.jpg',
-    type: 'grid',
-    label: 'The Details',
-    title: 'Bespoke\nSanctuary',
-    items: [
-      { label: 'Exclusivity', value: 'One group at a time' },
-      { label: 'Estate', value: '100+ Acres of Nature' },
-      { label: 'Breakfast', value: 'Artisanal Coorg Style' },
-      { label: 'Wildlife', value: '50+ Species of Birds' },
-      { label: 'Trails', value: 'Mapped Private Paths' },
-      { label: 'Peace', value: 'Total Digital Detox' }
-    ]
-  },
-  {
     id: 'bonfire',
     image: '/pictures/bonfire-lawn-chairs-couch.jpg',
     type: 'feature',
@@ -88,8 +73,23 @@ const sections = [
     align: 'left',
   },
   {
+    id: 'details',
+    image: '/pictures/fountain-creek-water.jpg',
+    type: 'grid',
+    label: 'The Details',
+    title: 'Bespoke\nSanctuary',
+    items: [
+      { label: 'Exclusivity', value: 'One group at a time' },
+      { label: 'Setting', value: 'Immersed in Nature' },
+      { label: 'Breakfast', value: 'Artisanal Coorg Style' },
+      { label: 'Wildlife', value: '50+ Species of Birds' },
+      { label: 'Trails', value: 'Mapped Private Paths' },
+      { label: 'Peace', value: 'Total Digital Detox' }
+    ]
+  },
+  {
     id: 'contact',
-    image: '/pictures/creek-with-hammock.jpg',
+    image: '/pictures/bridge-to-home.jpg',
     type: 'contact',
   },
 ];
@@ -98,9 +98,17 @@ export default function App() {
   const [current, setCurrent] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [entered, setEntered] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const containerRef = useRef(null);
   const sectionRefs = useRef([]);
   const audioRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const observerOptions = {
@@ -129,13 +137,14 @@ export default function App() {
     };
   }, []);
 
-  const handleEnter = () => {
+  const handleEnter = (withAudio) => {
     setEntered(true);
     
-    if (audioRef.current) {
+    if (withAudio && audioRef.current) {
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
+          setIsPlaying(true);
           // Smooth fade in
           let vol = 0;
           const interval = setInterval(() => {
@@ -167,8 +176,20 @@ export default function App() {
 
       
       {/* ── Persistent Waveform Button ─────────────────────── */}
-      <button
-        onClick={!entered ? handleEnter : undefined}
+      {!isMobile && (
+        <button
+        onClick={() => {
+          if (audioRef.current) {
+            if (isPlaying) {
+              audioRef.current.pause();
+              setIsPlaying(false);
+            } else {
+              audioRef.current.play();
+              audioRef.current.volume = 0.4;
+              setIsPlaying(true);
+            }
+          }
+        }}
         style={{
           position: 'fixed',
           zIndex: 1001,
@@ -178,46 +199,74 @@ export default function App() {
           border: 'none',
           color: '#e8dece',
           padding: '20px',
-          cursor: entered ? 'default' : 'pointer',
-          opacity: 0.6,
+          cursor: 'pointer',
+          opacity: entered ? 0.6 : 0,
+          pointerEvents: entered ? 'all' : 'none',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: '4px',
-          transform: entered 
-            ? 'translate(0, 0) scale(0.8)' 
-            : 'translate(calc(50vw - 40px - 50%), calc(-50vh + 40px + 50%)) scale(1.5)',
-          transition: 'transform 3s cubic-bezier(0.25, 1, 0.2, 1), opacity 0.8s ease',
+          transform: 'scale(0.8)',
+          transition: 'opacity 0.8s ease',
         }}
-        onMouseEnter={e => { if(!entered) e.currentTarget.style.opacity = 1 }}
-        onMouseLeave={e => { if(!entered) e.currentTarget.style.opacity = 0.6 }}
-        aria-label="Enter Sanctuary"
+        onMouseEnter={e => { e.currentTarget.style.opacity = 1 }}
+        onMouseLeave={e => { e.currentTarget.style.opacity = 0.6 }}
+        aria-label="Toggle Audio"
       >
         {[0, 0.2, 0.4, 0.1].map((delay, i) => (
           <div
             key={i}
             style={{
               width: '1.5px',
-              height: '18px',
+              height: isPlaying ? '18px' : '10px',
               backgroundColor: 'currentColor',
-              animation: `pulse-height 1.5s ease-in-out ${delay}s infinite`,
-              transformOrigin: 'center'
+              animation: isPlaying ? `pulse-height 1.5s ease-in-out ${delay}s infinite` : 'none',
+              transformOrigin: 'center',
+              transition: 'height 0.3s ease'
             }}
           />
         ))}
       </button>
+      )}
 
       {/* ── Gated "Ritual" Intro Overlay ─────────────────────── */}
       <div style={{
         position: 'fixed', inset: 0, zIndex: 1000,
-        background: '#0c0b09',
+        background: 'rgba(12, 11, 9, 0.85)',
+        backdropFilter: 'blur(4px)',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         opacity: entered ? 0 : 1,
         pointerEvents: entered ? 'none' : 'all',
         transition: 'opacity 3s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.25 }}>
-          <img src="/pictures/bridge-to-home.jpg" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '40px' }}>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(20px, 4vw, 32px)', color: '#f5f0e8', textAlign: 'center', maxWidth: '80%', fontStyle: 'italic', margin: 0 }}>
+            Amni is best experienced with sound.<br />Would you like to enable the ambience?
+          </p>
+          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button
+              onClick={() => handleEnter(true)}
+              style={{
+                background: 'rgba(245, 240, 232, 0.1)', backdropFilter: 'blur(12px)', border: '1px solid rgba(245, 240, 232, 0.2)',
+                color: '#f5f0e8', padding: '16px 36px', borderRadius: '100px', fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.4s ease',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(245, 240, 232, 0.15)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(245, 240, 232, 0.1)'}
+            >
+              Yes, with audio
+            </button>
+            <button
+              onClick={() => handleEnter(false)}
+              style={{
+                background: 'transparent', border: '1px solid rgba(245, 240, 232, 0.15)',
+                color: '#a09080', padding: '16px 36px', borderRadius: '100px', fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.4s ease',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(245, 240, 232, 0.05)'; e.currentTarget.style.color = '#f5f0e8'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#a09080'; }}
+            >
+              Enter silently
+            </button>
+          </div>
         </div>
       </div>
 
@@ -284,10 +333,15 @@ export default function App() {
         transition: 'opacity 0.5s ease',
         gap: '4px',
       }}>
-        {['Arrive', 'Story', 'The Vibe', 'The Cottage', 'Amber Hours', 'Dining', 'Sanctuary', 'Fire', 'Enquire'].map((label, i) => (
+        {[
+          { label: 'Arrive', index: 0 },
+          { label: 'Story', index: 2 },
+          { label: 'Sanctuary', index: 8 },
+          { label: 'Enquire', index: 9 }
+        ].map((item, i) => (
           <button
             key={i}
-            onClick={() => scrollTo(i === 0 ? 0 : i + 1)}
+            onClick={() => scrollTo(item.index)}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               fontFamily: "'Playfair Display', serif",
@@ -306,23 +360,59 @@ export default function App() {
               e.currentTarget.style.fontStyle = 'normal';
             }}
           >
-            {label}
+            {item.label}
           </button>
         ))}
+
+        {isMobile && (
+          <button
+            onClick={() => {
+              if (audioRef.current) {
+                if (isPlaying) {
+                  audioRef.current.pause();
+                  setIsPlaying(false);
+                } else {
+                  audioRef.current.play();
+                  audioRef.current.volume = 0.4;
+                  setIsPlaying(true);
+                }
+              }
+            }}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontFamily: "'Playfair Display', serif",
+              fontSize: 'clamp(16px, 4vw, 24px)',
+              fontStyle: 'italic',
+              color: '#a09080',
+              marginTop: '40px',
+              transition: 'all 0.4s ease',
+            }}
+          >
+            Sound {isPlaying ? 'On' : 'Off'}
+          </button>
+        )}
       </div>
 
-      {/* ── Shared Sticky Image for Hero ─────────────── */}
+      {/* ── Shared Sticky Video for Hero ─────────────── */}
       <div style={{
         position: 'fixed', inset: 0, zIndex: 1,
         opacity: current <= 1 ? 1 : 0,
         pointerEvents: 'none',
         transition: 'opacity 1s ease',
       }}>
-        <img src="/pictures/bridge-to-home.jpg" alt="" style={{ 
-          width: '100%', height: '100%', objectFit: 'cover',
-          transform: `scale(${1 + (current * 0.05)})`,
-          transition: 'transform 3s cubic-bezier(0.16, 1, 0.3, 1)',
-        }} />
+        <video 
+          key={isMobile ? 'mobile' : 'desktop'}
+          src={isMobile ? "/videos/amni-mobile-1.mp4" : "/videos/amni-video-1.mp4"} 
+          autoPlay 
+          loop 
+          muted 
+          playsInline 
+          style={{ 
+            width: '100%', height: '100%', objectFit: 'cover',
+            transform: `scale(${1 + (current * 0.05)})`,
+            transition: 'transform 3s cubic-bezier(0.16, 1, 0.3, 1)',
+          }} 
+        />
         <div style={{
           position: 'absolute', inset: 0,
           background: `linear-gradient(to top, rgba(12,11,9,${0.6 + (current * 0.3)}) 0%, transparent 80%)`,
@@ -348,6 +438,7 @@ export default function App() {
             sec={sec} 
             index={i}
             isActive={current === i} 
+            isMobile={isMobile}
             onScrollNext={() => scrollTo(i + 1)} 
             setRef={(el) => (sectionRefs.current[i] = el)}
           />
@@ -357,7 +448,7 @@ export default function App() {
   );
 }
 
-function SlideSection({ sec, index, isActive, onScrollNext, setRef }) {
+function SlideSection({ sec, index, isActive, isMobile, onScrollNext, setRef }) {
   // If it's the hero parts, we handle the image separately via the fixed container
   const isHeroPart = sec.type === 'hero-empty' || sec.type === 'hero-text';
 
@@ -418,7 +509,7 @@ function SlideSection({ sec, index, isActive, onScrollNext, setRef }) {
           <div style={{ 
             maxWidth: 540, 
             marginLeft: sec.align === 'right' ? 'auto' : 0,
-            textAlign: sec.align === 'right' ? 'right' : 'left'
+            textAlign: isMobile ? 'left' : (sec.align === 'right' ? 'right' : 'left')
           }}>
             <p style={{ fontSize: 9, letterSpacing: '0.5em', color: '#c8b89a', marginBottom: 20, textTransform: 'uppercase' }}>{sec.label}</p>
             <h2 style={{
@@ -450,7 +541,11 @@ function SlideSection({ sec, index, isActive, onScrollNext, setRef }) {
         )}
 
         {sec.type === 'grid' && (
-          <div style={{ maxWidth: 900 }}>
+          <div style={{ 
+            maxWidth: 1000, 
+            margin: isMobile ? '0' : '0 auto', 
+            textAlign: isMobile ? 'left' : 'center' 
+          }}>
             <p style={{ fontSize: 9, letterSpacing: '0.5em', color: '#c8b89a', marginBottom: 20, textTransform: 'uppercase' }}>{sec.label}</p>
             <h2 style={{
               fontFamily: "'Playfair Display', serif",
@@ -458,9 +553,13 @@ function SlideSection({ sec, index, isActive, onScrollNext, setRef }) {
               fontWeight: 400, lineHeight: 1, color: '#f5f0e8', margin: '0 0 48px 0',
               whiteSpace: 'pre-line'
             }}>{sec.title}</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'clamp(24px, 4vw, 48px) clamp(30px, 6vw, 80px)' }}>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', 
+              gap: 'clamp(24px, 4vw, 48px) clamp(30px, 6vw, 80px)' 
+            }}>
               {sec.items.map((item, idx) => (
-                <div key={idx}>
+                <div key={idx} style={{ textAlign: isMobile ? 'left' : 'center' }}>
                   <p style={{ fontSize: 9, letterSpacing: '0.2em', color: '#a09080', marginBottom: 6, textTransform: 'uppercase' }}>{item.label}</p>
                   <p style={{ fontSize: 'clamp(14px, 1.2vw, 16px)', color: '#c8b89a', fontWeight: 300 }}>{item.value}</p>
                 </div>
@@ -484,18 +583,6 @@ function SlideSection({ sec, index, isActive, onScrollNext, setRef }) {
               <ContactLink label="Instagram" value="@amni.coorg" href="https://www.instagram.com/amni.coorg/" />
             </div>
             
-            <div style={{ 
-              display: 'flex', 
-              flexDirection: 'row',
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              borderTop: '1px solid rgba(255,255,255,0.08)', 
-              paddingTop: 32,
-              marginTop: 20
-            }}>
-              <img src="/logo-full.svg" alt="Amni" style={{ height: 24, filter: 'invert(1)', opacity: 0.2 }} />
-              <p style={{ fontSize: 9, letterSpacing: '0.3em', color: '#5a4e44', margin: 0 }}>© {new Date().getFullYear()} AMNI, COORG</p>
-            </div>
           </div>
         )}
       </div>
@@ -513,6 +600,26 @@ function SlideSection({ sec, index, isActive, onScrollNext, setRef }) {
             <polyline points="7 13 12 18 17 13"></polyline>
             <polyline points="7 6 12 11 17 6"></polyline>
           </svg>
+        </div>
+      )}
+
+      {sec.type === 'contact' && (
+        <div style={{
+          position: 'absolute',
+          bottom: 'clamp(20px, 4vw, 40px)',
+          left: 0,
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '12px',
+          zIndex: 10,
+          opacity: isActive ? 1 : 0,
+          transform: isActive ? 'translateY(0)' : 'translateY(20px)',
+          transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.6s'
+        }}>
+          <img src="/logo-full.svg" alt="Amni" style={{ height: 20, filter: 'invert(1)', opacity: 0.2 }} />
+          <p style={{ fontSize: 9, letterSpacing: '0.3em', color: '#5a4e44', margin: 0 }}>© {new Date().getFullYear()} AMNI, COORG</p>
         </div>
       )}
     </section>
